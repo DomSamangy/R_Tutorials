@@ -171,6 +171,9 @@ plot_court = function(court_theme = court_themes$light, use_short_three = FALSE)
 
 # NBA Data
 ```{r}
+# Grab team names to type into teams_shots function
+nba_teams() %>% filter(isNonNBATeam == 0)
+
 # Grab team shot data
 nets <- teams_shots(teams = "Brooklyn Nets", seasons = 2021, season_types = "Regular Season")
 
