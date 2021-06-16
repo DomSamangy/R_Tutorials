@@ -5,13 +5,19 @@ output: html_document
 
 # Packages
 ```{r}
+install.packages("ggplot2")
 library(ggplot2)
+install.packages("tidyverse")
 library(tidyverse)
+install.packages("nbastatR")
 library(nbastatR)
+install.packages("devtools")
 library(devtools)
-#devtools::install_github("lbenz730/ncaahoopR")
+devtools::install_github("lbenz730/ncaahoopR")
 library(ncaahoopR)
+install.packages("extrafont")
 library(extrafont)
+install.packages("cowplot")
 library(cowplot)
 ```
 
@@ -61,13 +67,13 @@ court_themes = list(
     hex_border_color = "#000000"
   ),
   ppt = list(
-    court = 'gray20',
+    court = 'gray15',
     lines = 'white',
     text = '#f0f0f0',
     made = '#00bfc4',
     missed = '#f8766d',
     hex_border_size = 0,
-    hex_border_color = "gray20"
+    hex_border_color = "gray15"
 )
 )
 
@@ -153,7 +159,7 @@ plot_court = function(court_theme = court_themes$light, use_short_three = FALSE)
     theme_minimal(base_size = 22) +
     theme(
       text = element_text(color = court_theme$text),
-      plot.background = element_rect(fill = 'gray20', color = 'gray20'),
+      plot.background = element_rect(fill = 'gray15', color = 'gray15'),
       panel.background = element_rect(fill = court_theme$court, color = court_theme$court),
       panel.grid = element_blank(),
       panel.border = element_blank(),
@@ -175,7 +181,7 @@ plot_court = function(court_theme = court_themes$light, use_short_three = FALSE)
 nba_teams() %>% filter(isNonNBATeam == 0)
 
 # Grab team shot data
-nets <- teams_shots(teams = "Brooklyn Nets", seasons = 2021, season_types = "Regular Season")
+nets <- teams_shots(teams = "Brooklyn Nets", seasons = 2021, season_types = "Playoffs")
 
 # Filter shot data for player & clean data to fit court dimensions
 durant <- nets %>% filter(namePlayer=="Kevin Durant") %>% 
@@ -185,7 +191,7 @@ durant <- nets %>% filter(namePlayer=="Kevin Durant") %>%
 durant$x <- durant$x * -1 
 
 # Filter shots by game date
-final_durant <- durant %>% filter(dateGame == 20210502)
+final_durant <- durant %>% filter(dateGame == 20210615)
 ```
 
 # NBA Chart
@@ -204,11 +210,27 @@ p1 <- plot_court(court_themes$ppt, use_short_three = F) +
         legend.title = element_blank(),
         legend.text = element_text(hjust = .5, size = 10, family = "Comic Sans MS", face = "bold", colour = "white")) +
   ggtitle(label = "Kevin Durant vs. Milwaukee",
-          subtitle = "42 PTS | 10 REB | 7-13 3PT - 5/2/21") 
+          subtitle = "49 PTS | 17 REB | 10 AST | 4-9 3PT - 6/15/21") 
 
 ggdraw(p1) + theme(plot.background = element_rect(fill="gray20", color = NA)) 
 
 #ggsave("Durant.png", height = 6, width = 6, dpi = 300)
+
+plot_court(court_themes$ppt, use_short_three = F) +
+  geom_point(data = final_durant, aes(x = x, y = y, color = final_durant$isShotMade, fill = final_durant$isShotMade), 
+             size =3, shape = 21, stroke = .5) +  
+  scale_color_manual(values = c("green4","red3"), aesthetics = "color", breaks=c("TRUE", "FALSE"), labels=c("Made", "Missed")) +
+  scale_fill_manual(values = c("green2","transparent"), aesthetics = "fill", breaks=c("TRUE", "FALSE"), labels=c("Made", "Missed")) +
+  scale_x_continuous(limits = c(-27.5, 27.5)) +
+  scale_y_continuous(limits = c(0, 45)) +
+  theme(plot.title = element_text(hjust = .5, size = 22, family = "Comic Sans MS", face = "bold", vjust = -4),
+        plot.subtitle = element_text(hjust = .5, size = 10, family = "Comic Sans MS", face = "bold", vjust = -8),
+        legend.position = c(.49, -.02),
+        legend.direction = "horizontal",
+        legend.title = element_blank(),
+        legend.text = element_text(hjust = .5, size = 10, family = "Comic Sans MS", face = "bold", colour = "white"))
+
+ggsave("chart.png", height = 6, width = 6, dpi = 300)
 ```
 
 # NCAA Data
