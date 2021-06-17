@@ -67,13 +67,13 @@ court_themes = list(
     hex_border_color = "#000000"
   ),
   ppt = list(
-    court = 'gray15',
+    court = 'gray20',
     lines = 'white',
     text = '#f0f0f0',
     made = '#00bfc4',
     missed = '#f8766d',
     hex_border_size = 0,
-    hex_border_color = "gray15"
+    hex_border_color = "gray20"
 )
 )
 
@@ -159,7 +159,7 @@ plot_court = function(court_theme = court_themes$light, use_short_three = FALSE)
     theme_minimal(base_size = 22) +
     theme(
       text = element_text(color = court_theme$text),
-      plot.background = element_rect(fill = 'gray15', color = 'gray15'),
+      plot.background = element_rect(fill = 'gray20', color = 'gray20'),
       panel.background = element_rect(fill = court_theme$court, color = court_theme$court),
       panel.grid = element_blank(),
       panel.border = element_blank(),
@@ -208,29 +208,15 @@ p1 <- plot_court(court_themes$ppt, use_short_three = F) +
         legend.position = c(.5, .85),
         legend.direction = "horizontal",
         legend.title = element_blank(),
-        legend.text = element_text(hjust = .5, size = 10, family = "Comic Sans MS", face = "bold", colour = "white")) +
+        legend.text = element_text(hjust = .5, size = 10, family = "Comic Sans MS", face = "bold", colour = "white"),
+        plot.caption = element_text(hjust = .5, size = 6, family = "Comic Sans MS", face = "bold", colour = "lightgrey", vjust = 8)) +
   ggtitle(label = "Kevin Durant vs. Milwaukee",
-          subtitle = "49 PTS | 17 REB | 10 AST | 4-9 3PT - 6/15/21") 
+          subtitle = "49 PTS | 17 REB | 10 AST | 4-9 3PT - 6/15/21") +
+  labs(caption = "Tutorial: @DSamangy")
 
 ggdraw(p1) + theme(plot.background = element_rect(fill="gray20", color = NA)) 
 
 #ggsave("Durant.png", height = 6, width = 6, dpi = 300)
-
-plot_court(court_themes$ppt, use_short_three = F) +
-  geom_point(data = final_durant, aes(x = x, y = y, color = final_durant$isShotMade, fill = final_durant$isShotMade), 
-             size =3, shape = 21, stroke = .5) +  
-  scale_color_manual(values = c("green4","red3"), aesthetics = "color", breaks=c("TRUE", "FALSE"), labels=c("Made", "Missed")) +
-  scale_fill_manual(values = c("green2","transparent"), aesthetics = "fill", breaks=c("TRUE", "FALSE"), labels=c("Made", "Missed")) +
-  scale_x_continuous(limits = c(-27.5, 27.5)) +
-  scale_y_continuous(limits = c(0, 45)) +
-  theme(plot.title = element_text(hjust = .5, size = 22, family = "Comic Sans MS", face = "bold", vjust = -4),
-        plot.subtitle = element_text(hjust = .5, size = 10, family = "Comic Sans MS", face = "bold", vjust = -8),
-        legend.position = c(.49, -.02),
-        legend.direction = "horizontal",
-        legend.title = element_blank(),
-        legend.text = element_text(hjust = .5, size = 10, family = "Comic Sans MS", face = "bold", colour = "white"))
-
-ggsave("chart.png", height = 6, width = 6, dpi = 300)
 ```
 
 # NCAA Data
@@ -266,9 +252,11 @@ p1 <- plot_court(court_themes$ppt, use_short_three = T) +
         legend.position = c(.5, .85),
         legend.direction = "horizontal",
         legend.title = element_blank(),
-        legend.text = element_text(hjust = .5, size = 10, family = "Comic Sans MS", face = "bold", colour = "white")) +
+        legend.text = element_text(hjust = .5, size = 10, family = "Comic Sans MS", face = "bold", colour = "white"),
+        plot.caption = element_text(hjust = .5, size = 6, family = "Comic Sans MS", face = "bold", colour = "lightgrey", vjust = 8)) +
   ggtitle(label = "Buddy Boeheim vs. San Diego State",
-          subtitle = "30 PTS | 4 REB | 7-10 3PT - 3/19/21") 
+          subtitle = "30 PTS | 4 REB | 7-10 3PT - 3/19/21") +
+  labs(caption = "Tutorial: @DSamangy") 
 
 ggdraw(p1) + theme(plot.background = element_rect(fill="gray20", color = NA)) 
 
