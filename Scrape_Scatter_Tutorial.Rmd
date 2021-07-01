@@ -1,0 +1,128 @@
+---
+title: "Scraping_Tutorial"
+output: html_document
+---
+
+# Packages
+```{r}
+#install.packages("tidyverse")
+library(tidyverse)
+#install.packages("rvest")
+library(rvest)
+#install.packages("dplyr")
+library(dplyr)
+#install.packages("janitor")
+library(janitor)
+#install.packages("prismatic")
+library(prismatic)
+#install.packages("ggrepel")
+library(ggrepel)
+```
+
+# Premier League Data
+```{r}
+# url storage
+url <- "https://fbref.com/en/comps/9/Premier-League-Stats"
+
+# read_html to scrape the items on url page
+full_table <- read_html(url, as.data.frame=T, stringsAsFactors = TRUE)
+
+# html_nodes to pull all nodes under the "tabloe" label
+# the numbeer (in this case 2) tells which table to pull from the list of tables
+# html_table converts it to table format
+prem <- full_table %>%  
+  html_nodes("table") %>% 
+  .[[1]] %>% 
+  html_table(fill=T) 
+
+# make row 1 column names
+#prem <- prem %>% row_to_names(1)
+```
+
+# NBA Data
+```{r}
+# url storage
+url <- "https://www.basketball-reference.com/leagues/NBA_2021.html"
+
+# read_html to scrape the items on url page
+full_table <- read_html(url, as.data.frame=T, stringsAsFactors = TRUE)
+
+# html_nodes to pull all nodes under the "tabloe" label
+# the numbeer (in this case 11) tells which table to pull from the list of tables
+# html_table converts it to table format
+adv <- full_table %>%  
+  html_nodes("table") %>% 
+  .[[11]] %>% 
+  html_table(fill=T) 
+
+# make row 1 column names
+adv <- adv %>% row_to_names(1)
+colnames(adv) <- make.unique(names(adv))
+
+# remove league arverage row
+adv <- adv[!(adv$Team =="League Average"),]
+
+# remove all NAs
+adv <- adv[,colSums(is.na(adv))<nrow(adv)]
+
+# remove *
+adv$Team <- (str_remove(adv$Team, "[*]"))
+```
+
+# Scatter plot
+```{r}
+nba <- adv %>%
+ggplot(aes(x = as.numeric(ORtg), y = as.numeric(DRtg), label = Team)) +
+geom_smooth(method = "lm", color = "gray25", fill = "gray20") +
+geom_point(aes(fill = "red", color = after_scale(clr_darken(fill, 0.3))), 
+             shape = 21, 
+             alpha = .75, 
+             size = 3) +
+  geom_text_repel(size = 2, color = "white", min.segment.length = unit(0.1, "lines")) +
+  theme(
+    legend.position = "none",
+    plot.background = element_rect(fill = "gray15", colour = "gray15"),
+    panel.background = element_rect(fill = "gray15", colour = "gray15"),
+    panel.grid.major = element_line(colour = "gray20"),
+    panel.grid.minor = element_blank(),
+    axis.line = element_line(colour = "lightgrey"),
+    axis.text = element_text(colour = "lightgrey"),
+    axis.title = element_text(colour = "lightgrey"),
+    plot.title = element_text(colour = "white", hjust=.5, face="bold", size = 15),
+    plot.subtitle = element_text(colour = "white", hjust=.5, face="bold", size = 8)) +
+  labs(title = "Offensive Rating of NBA Teams",
+       subtitle = "2020-21 Regular Season") +
+  xlab("Offensive Rating") +
+  ylab("Defensive Rating") +
+  scale_y_reverse()
+ 
+nba
+
+pl <- prem %>% ggplot(aes(x = xG, y = xGA, label = Squad)) +
+geom_smooth(method = "lm", color = "gray25", fill = "gray20") +
+geom_point(aes(fill = "red", color = after_scale(clr_darken(fill, 0.3))), 
+             shape = 21, 
+             alpha = .75, 
+             size = 3) +
+  geom_text_repel(size = 2.5, color = "white", min.segment.length = unit(0.1, "lines")) +
+  theme(
+    legend.position = "none",
+    plot.background = element_rect(fill = "gray15", colour = "gray15"),
+    panel.background = element_rect(fill = "gray15", colour = "gray15"),
+    panel.grid.major = element_line(colour = "gray20"),
+    panel.grid.minor = element_blank(),
+    axis.line = element_line(colour = "lightgrey"),
+    axis.text = element_text(colour = "lightgrey"),
+    axis.title = element_text(colour = "lightgrey"),
+    plot.title = element_text(colour = "white", hjust=.5, face="bold", size = 15),
+    plot.subtitle = element_text(colour = "white", hjust=.5, face="bold", size = 8)) +
+  labs(title = "xG vs xGA of PL Teams",
+       subtitle = "2020-21 Season") +
+  scale_y_reverse()
+
+pl
+
+ggsave("nba.png", nba, height = 6, width = 6, dpi = 300)
+ggsave("premier_league.png", pl, height = 6, width = 6, dpi = 300)
+```
+
