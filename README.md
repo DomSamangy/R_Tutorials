@@ -1,4 +1,4 @@
-# R_TutorialS
+# R_Tutorials
 
 To complement my first public R tutorial video, this repository contains the code used to produce in the video that can be seen here: . 
 
