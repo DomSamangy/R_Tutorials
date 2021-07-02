@@ -8,5 +8,5 @@ The tutorials included are:
     - The tutorial shows how to create a court, scrape player shot data, and finally plot and customize an aesthetcially pleasing shot chart. The finished products can be seen above in png form!
 
 - Using rvest to scrape baksetball-reference.com and fbref.com and then visualizing relationships using scatter plots.
-    - 
+    - The tutorial shows how to scrape indivudal tables from the aforementioned websites. We then utilizee ggplot2 to visualize the relationships between xG and xGA in the Premier League and offensive and defensive rating in the NBA.
 
