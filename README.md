@@ -10,3 +10,5 @@ The tutorials included are:
 - Using rvest to scrape baksetball-reference.com and fbref.com and then visualizing relationships using scatter plots.
     - The tutorial shows how to scrape indivudal tables from the aforementioned websites. We then utilizee ggplot2 to visualize the relationships between xG and xGA in the Premier League and offensive and defensive rating in the NBA.
 
+- Creating NBA shot and Soccer pass heatmaps using nbastatR and StatsBombR packages.
+    - The tutorial shows how to create heatmaps for both NBA shots and Soccer/Football passes using geom_contour_2d_filled. FCrStats's SBPitch package is also used to plot a pitch and other customizable features are shown as well.
