@@ -1,6 +1,6 @@
 # R_Tutorials
 
-To complement my R tutorials on YouTube, this repository contains the R markdown files that contain the scripts I used to produce the visualziations in the videos. Those can be found here: https://www.youtube.com/c/McKayJohns/videos. 
+To complement my R tutorials on YouTube, this repository contains the R markdown files that contain the scripts I used to produce the visualizations in the videos. Those can be found here: https://www.youtube.com/c/McKayJohns/videos. 
 
 The tutorials included are:
 
