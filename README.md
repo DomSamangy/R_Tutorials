@@ -14,7 +14,12 @@ The tutorials included are:
     - The tutorial shows how to create heatmaps for both NBA shots and Soccer/Football passes using geom_contour_2d_filled. FCrStats's SBPitch package is also used to plot a pitch and other customizable features are shown as well.
 ![CP3_Heatmap](https://user-images.githubusercontent.com/70119566/125554356-251b279d-da68-45a8-83cb-205e78a0eec2.png)
 ![Example_Soccer_Heatmap](https://user-images.githubusercontent.com/70119566/125554276-b578c3d8-b513-46ec-bd74-36e145679766.png)
-- Creating NBA nd Soccer/Football poalr/pizza charts.
+- Creating NBA and Soccer/Football poalr/pizza charts.
     - The tutorial shows how to create heatmaps for both NBA shots and Soccer/Football using a manually created data frame and scraping football reference scouting reports from the worldfootballR package.
   ![Example_Soccer_Polar](https://user-images.githubusercontent.com/70119566/142473174-cd727b32-18e6-46c7-9a00-17e182b456c1.png)
   ![Example_NBA_Polar](https://user-images.githubusercontent.com/70119566/142473196-45c56ac9-519d-4c1a-98ed-a61e4a8a115f.png)
+- Plotting basketball and soccer shot charts from manually created event data
+    - The tutorial shows how to create basketball and soccer shot charts using the sporty R package and plotting tools from @nguyenank_ and @Torvaney. This can be a great tool for coaches from either sport and at any age level by allowing you to create your own historical database and also by creating high-level visuals! 
+![basketball_shot_chart](https://user-images.githubusercontent.com/70119566/148167389-c02f5bff-d58c-45e5-a3b6-d8d235f57db1.png)![soccer_shot_chart](https://user-images.githubusercontent.com/70119566/148167430-e0e6e785-6329-4f8b-8d8e-31759183380f.png)
+
+
