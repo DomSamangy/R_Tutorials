@@ -1,0 +1,140 @@
+---
+title: "Event_Data_Tutorial"
+output: html_document
+---
+
+# Packages
+```{r}
+library(tidyverse)
+library(ggplot2)
+library(sportyR)
+library(cowplot)
+library(devtools)
+#devtools::install_github("FCrSTATS/SBpitch")
+library(SBpitch)
+```
+
+# Basketball data / court aesthetics
+```{r}
+# shot plotter link
+#https://shot-plotter.netlify.app/basketball-ncaa
+
+basketball_shots <- read_csv("basketball_shots.csv")
+
+court <- geom_basketball(
+  'ncaa',
+  # main court color
+  court_background_color = '#e8e0d7',
+  # center circle color
+  center_circle_color = '#CA0020',
+  # mid court line
+  division_line_color = '#CA0020',
+  # end line color
+  endline_color = '#CA0020',
+  # sideline color
+  sideline_color = '#CA0020',
+  # bench line color
+  team_bench_color = '#0571B0',
+  # substituion line color
+  substitution_area_color = '#0571B0',
+  # out of bounds court color
+  court_apron_color = '#0571B0',
+  # mens 3PT line color
+  m_three_point_line_color = '#0571B0',
+  # woms 3PT line color
+  w_three_point_line_color = '#ffffff',
+  # mens 2PT line color
+  m_two_point_range_color = '#e8e0d7',
+  # womens 2PT line color
+  w_two_point_range_color = '#ffffff66',
+  # free throw lines color
+  amateur_free_throw_lane_color = '#CA0020',
+  # paint color
+  amateur_painted_area_color = '#CA0020',
+  # free throw lane color
+  amateur_free_throw_lane_lines_color = '#0571B0',
+  # free throw circle color
+  free_throw_semi_circle_line_color = '#0571B0',
+  # free throw half-circle fill color
+  free_throw_semi_circle_fill_color = '#e8e0d7',
+  # defensive box (kind've by dunker spot) color
+  lower_defensive_box_color = '#e8e0d7',
+  # restricted area arc color
+  restricted_area_arc_color = '#0571B0',
+  backboard_color = '#0571B0',
+  basket_ring_color = '#0571B0',
+  net_color = '#e8e0d7'
+)
+```
+
+# Basketball plotting
+```{r}
+p1 <- court +
+  geom_point(basketball_shots, mapping = aes(x=X, y=Y, label = Player, color = Outcome), size = 3) +
+  scale_color_manual(aesthetics = "color", values = c("green3","red2"), labels=c("Made", "Missed")) +
+  geom_text(basketball_shots, mapping = aes(x = X, y = Y, label = Player), 
+            color = "white", size = 2, fontface = "bold", family = "Comic Sans MS") +
+  theme(panel.background = element_rect(fill = "gray15", color="gray15"),
+        plot.background = element_rect(fill = "gray15", color="gray15"),
+        text = element_text(family = "Comic Sans MS"),
+        plot.title = element_text(colour = "white", hjust = .5, face = "bold", size = 14, vjust = -1),
+        plot.subtitle = element_text(colour = "white", hjust = .5, size = 8),
+        plot.caption = element_text(colour = "white", size = 6),
+        legend.position = c(.5,.075),
+        legend.direction = "horizontal",
+        legend.title = element_blank(),
+        legend.key = element_rect(fill = "transparent", colour = "transparent"),
+        legend.background = element_rect(fill = "transparent", colour = "transparent"),
+        legend.text = element_text(hjust = .4, vjust = .5, size = 8, family = "Comic Sans MS", face = "bold", colour = "white")) +
+  labs(title = "Practice Shot Chart - 12/28/21") 
+
+cowplot::ggdraw(p1) + 
+  theme(plot.background = element_rect(fill = "gray15", color="gray15"),
+        panel.background = element_rect(fill = "gray15", color="gray15"))
+
+#ggsave("basketball_shot_chart.png", height = 5, width = 8, dpi = "retina")
+```
+
+# Soccer data / court aesthetics
+```{r}
+soccer_shots <- read_csv("soccer_data.csv")
+
+soccer_shots <- rename(soccer_shots, "outcome" = mod1)
+
+soccer_shots1 <- soccer_shots %>%
+  mutate(x = x*1.2,
+         y = (80-(y *.8)))
+```
+
+# Soccer Plotting
+```{r}
+p1 <- create_Pitch(grass_colour = "gray15", background_colour = "gray15", line_colour = "gray50") +
+  geom_point(soccer_shots1, mapping = aes(x=x, y=y, color = outcome), size = 2) +
+  scale_color_manual(breaks=c("TRUE", "FALSE"), values = c("green3","lightgrey"), labels=c("Goal", "No Goal")) +
+  scale_x_continuous(limits = c(0, 120)) +
+  scale_y_continuous(limits = c(0, 80))  + 
+  theme(
+    plot.background = element_rect(colour = "gray15", fill = "gray15"),
+    plot.title = element_text(color = "white", hjust = .5, size = 16, family = "Comic Sans MS", face = "bold", vjust = -1),
+    plot.subtitle = element_text(color = "white", hjust = .5, size = 8, family = "Comic Sans MS", face = "bold", vjust = -4),
+    plot.caption = element_text(color = "white", hjust = .5, size = 6, family = "Comic Sans MS", face = "bold", vjust = 4),
+    legend.position = c(.1,.13),
+    legend.title = element_blank(),
+    legend.key = element_rect(fill = "transparent", colour = "transparent"),
+    legend.background = element_rect(fill = "transparent", colour = "transparent"),
+    legend.text = element_text(hjust = .4, vjust = .5, size = 6, family = "Comic Sans MS", face = "bold", colour = "white")) +
+  labs(title = "Match Shot Chart vs. Opponent",
+          subtitle = "Dec. 27, 2021",
+       caption = "Event Tracker: @Torvaney // Tutorial: @DSamangy") +
+  annotate("text", label = "Home", x = 30, y = 75, 
+           size = 3, color = "white", face = "bold", family = "Comic Sans MS") +
+  annotate("text", label = "Away", x = 90, y = 75, 
+           size = 3, color = "white", face = "bold", family = "Comic Sans MS")
+
+cowplot::ggdraw(p1) + 
+  theme(plot.background = element_rect(fill="gray15", color = "gray15"),
+        panel.background = element_rect(fill = "gray15", color="gray15"))
+
+#ggsave("soccer_shot_chart.png", height = 5, width = 8, dpi = "retina")
+```
+
