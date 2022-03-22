@@ -1,0 +1,95 @@
+---
+title: "Soccer_Shotmap_Tutorial"
+output: html_document
+---
+
+# Shot map data
+```{r}
+#install.packages("ggplot2")
+library(ggplot2)
+#install.packages("tidyverse")
+library(tidyverse)
+#install.packages("nbastatR")
+library(nbastatR)
+#install.packages("devtools")
+library(devtools)
+#devtools::install_github("lbenz730/ncaahoopR")
+library(ncaahoopR)
+#install.packages("extrafont")
+library(extrafont)
+#install.packages("cowplot")
+library(cowplot)
+#devtools::install_github("statsbomb/StatsBombR")
+library(StatsBombR)
+#devtools::install_github("FCrSTATS/SBpitch")
+library(SBpitch)
+```
+
+```{r}
+comps <- FreeCompetitions() %>% filter(competition_name == "Champions League" & season_name=="2011/2012") 
+
+comp_data <- FreeMatches(comps)
+
+ucl_12 <- StatsBombFreeEvents(MatchesDF = comp_data, Parallel = T)
+ucl_12 <- allclean(ucl_12)
+
+unique(ucl_12$type.name)
+team <- ucl_12 %>% filter(team.name == "Chelsea", type.name == "Shot")
+
+team_shots <- team %>% select(period, minute, type.name, pass.length, pass.angle, player.name, 
+                                   location.x, location.y, shot.statsbomb_xg, shot.technique.name, shot.body_part.name, shot.type.name,
+                                   shot.outcome.name, shot.end_location.x, shot.end_location.y, shot.end_location.z)
+
+team_shots <- team_shots %>% 
+  mutate(
+    goal = case_when(
+      shot.outcome.name == "Goal" ~ "True",
+      shot.outcome.name != "Goal" ~ "False",
+    )
+  )
+
+team_shots <- team_shots %>%
+  filter(period != 5)
+```
+
+# Shot map plot
+```{r}
+p1 <- create_Pitch(grass_colour = "gray15", background_colour = "gray15", line_colour = "gray40") +
+  #guides(fill = TRUE) +
+  # --------------------------------- plotting and theme
+  geom_point(team_shots, mapping = aes(x = location.x, y = location.y, fill = goal, size = shot.statsbomb_xg), 
+                  color = "gray60", pch=21) +
+  scale_size_continuous(limits=c(0,1), breaks = c(.25,.5,.75,1), labels=c(".25", ".5", ".75", "1")) + 
+  scale_fill_manual(breaks=c("True", "False"), values = c("green3", "gray15"), labels=c("Goal", "No Goal")) +
+  scale_x_continuous(limits = c(0, 120)) +
+  scale_y_continuous(limits = c(0, 80)) +
+  theme(
+    plot.background = element_rect(colour = "gray15", fill = "gray15"),
+    plot.title = element_text(color = "white", hjust = .5, size = 20, family = "Comic Sans MS", face = "bold", vjust = -1),
+    plot.subtitle = element_text(color = "lightgrey", hjust = .5, size = 8, family = "Comic Sans MS", face = "bold", vjust = -2),
+    plot.caption = element_text(color = "white", hjust = .5, size = 6, family = "Comic Sans MS", face = "bold", vjust = 4),
+    legend.position = c(.5,.2),
+    legend.key = element_rect(fill = "transparent", colour = "transparent"),
+    legend.background = element_rect(fill = "gray20", colour = "transparent"),
+    legend.title = element_text(hjust = .4, vjust = .5, size = 10, family = "Comic Sans MS", face = "bold", colour = "white"),
+    legend.text = element_text(hjust = .4, vjust = .5, size = 8, family = "Comic Sans MS", face = "bold", colour = "white"),
+    legend.direction = "horizontal",
+    legend.box = "vertical",
+    legend.box.just = "center",
+    legend.margin = margin(t = .1, b=.1, r=.1, l=.1, unit='cm')
+    ) +
+  labs(title = "Chelsea FC - 2012 CL Final Shot Map",
+         subtitle = "Includes all open-play and set pice shots // Data via: StatsBombR // @DSamangy",
+       fill = "Outcome",
+       size = "xG") +
+  coord_flip(xlim = c(60, 120), ylim = c(0,80)) +
+  scale_y_reverse() + 
+  guides(fill = guide_legend(order = 1))
+
+p1 + 
+  draw_image("https://upload.wikimedia.org/wikipedia/en/thumb/c/cc/Chelsea_FC.svg/1200px-Chelsea_FC.svg.png", 
+      x = 111, y = -8, width = 7.5, height = 7.5) 
+
+#ggsave("chelsea_shot_map_tutorial.png", height = 5, width = 8, dpi = "retina")
+```
+
