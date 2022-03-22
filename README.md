@@ -22,4 +22,8 @@ The tutorials included are:
     - The tutorial shows how to create basketball and soccer shot charts using the sporty R package and plotting tools from @nguyenank_ and @Torvaney. This can be a great tool for coaches from either sport and at any age level by allowing you to create your own historical database and also by creating high-level visuals! 
 ![basketball_shot_chart](https://user-images.githubusercontent.com/70119566/148167389-c02f5bff-d58c-45e5-a3b6-d8d235f57db1.png)![soccer_shot_chart](https://user-images.githubusercontent.com/70119566/148167430-e0e6e785-6329-4f8b-8d8e-31759183380f.png)
 
+- Soccer/Football Individual Game Shotmaps
+    - Using Statsbomb open event data from their r package "StatsBombR", I show how to create individual game shotmaps. The packages primiarly used are ggplot and tidyverse.
+    - ![chelsea_shot_map_tutorial](https://user-images.githubusercontent.com/70119566/159566698-082612eb-dc2d-45ca-afd4-09f29ec909ac.png)
+    - ![bayern_shot_map_tutorial](https://user-images.githubusercontent.com/70119566/159566707-a83ccd7b-5530-47a1-8665-4e5836481519.png)
 
