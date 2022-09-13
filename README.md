@@ -27,3 +27,9 @@ The tutorials included are:
     - ![chelsea_shot_map_tutorial](https://user-images.githubusercontent.com/70119566/159566698-082612eb-dc2d-45ca-afd4-09f29ec909ac.png)
     - ![bayern_shot_map_tutorial](https://user-images.githubusercontent.com/70119566/159566707-a83ccd7b-5530-47a1-8665-4e5836481519.png)
 
+- NBA Bar Charts (Basic & Advanced)
+    - Using the nbastatR package, I show how to access player's career stats and then create bar charts to show year-over-year trends with points per game and grouped shooting percentages.
+    - ![luka_pts_bar_chart](https://user-images.githubusercontent.com/70119566/189935025-fea1a036-c7b2-411e-94f7-e4611c23012d.png)
+    - ![player_2_pct_bar_chart](https://user-images.githubusercontent.com/70119566/189935114-f1d85c26-b29b-40c8-9c7c-f03c9dd14d30.png)
+
+    
