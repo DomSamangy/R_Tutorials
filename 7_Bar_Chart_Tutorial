@@ -1,0 +1,272 @@
+---
+title: "Bar_Chart_Tutorial"
+output: html_document
+date: "2022-09-08"
+---
+
+# ----------- Install and Load Packages
+```{r}
+#install.packages("ggplot2")
+library(ggplot2)
+
+#install.packages("tidyverse")
+library(tidyverse)
+
+#install.packages("nbastatR")
+library(nbastatR)
+
+#install.packages("worldfootballR")
+library(worldfootballR)
+
+#install.packages("formattable")
+library(formattable)
+
+#install.packages("cowplot")
+library(cowplot)
+
+Sys.setenv("VROOM_CONNECTION_SIZE" = 999999)
+```
+
+
+
+# ----------- Player Career Points per Game Bar Chart (Luka Doncic)
+
+# pull and manipulate the data
+```{r}
+# use players_career function to pull the player's career per game stats
+player_stats <- nbastatR::players_careers(players = c("Luka Doncic"), modes = c("PerGame")) %>% 
+  # fitler for regular season 
+  filter(nameTable == "SeasonTotalsRegularSeason") %>%
+  # pull dataset that is nested in "dataTable" column
+  unnest(dataTable) 
+```
+
+# ggplot code to create the plot
+```{r}
+# call ggplot
+ggplot() +
+  # bar chart function from ggplot
+  geom_bar(player_stats, mapping = aes(x = slugSeason, y = pts), 
+           stat = "identity", position = position_dodge(), fill = "#00538C", color = "white", width = .6) + 
+  # set y-axis limits and start ay-xis at 0
+  scale_y_continuous(limits=c(0, 35), expand = c(0,0)) +
+  # set different labels for plots
+  labs(title = "Luka Doncic - Career Points Per Game Trend",
+       subtitle = "Twitter: @DSamangy || Data: nbastatR\n",
+       x = "Season",
+       y = "Points Per Game\n") +
+  # add points per game text values inside the bars for easier understanding
+  geom_text(player_stats, mapping = aes(x = slugSeason, y = pts, label = pts), 
+            position = position_dodge(width = .9), size = 5, family = "Comic Sans MS", color = "white", vjust = 2, face = "bold") +
+  # different theme settings to customize the chart
+  theme(
+        # labels/text
+        plot.title = element_text(hjust = .5, size = 14, family = "Comic Sans MS", face = "bold", color = "white"),
+        plot.subtitle = element_text(hjust = .5, size = 8, family = "Comic Sans MS", color = "gray50"),
+        text = element_text(family = "Comic Sans MS"),
+        legend.position = "none",
+        # plot background and lines
+        plot.background = element_rect(fill="gray15", color = "gray15"),
+        panel.background = element_rect(fill="gray15", color = "gray15"),
+        panel.grid.minor.y = element_blank(),
+        panel.grid.major.y = element_line(colour = "gray20"),
+        panel.grid.major.x = element_blank(),
+        axis.line = element_line(colour = "white"),
+        # axis
+        axis.title.x = element_text(colour = "white", size = 10),
+        axis.title.y = element_text(colour = "white", size = 10),
+        axis.text.x = element_text(colour = "white", size = 8),
+        axis.text.y = element_text(colour = "white", size = 8),
+        plot.margin = margin(.5, .5, .5, .5, "cm"),
+        # facet 
+        strip.background = element_rect(fill="gray20"),
+        strip.text = element_text(hjust = .5, size = 8, family = "Comic Sans MS", face = "bold", color = "white")) 
+
+# save the lst plot that was created in the environment (this one)
+ggsave("player_pts_bar_chart.png", height = 6, width = 6, dpi = "retina")
+```
+
+
+
+# ----------- Player Career Shooting Percentages Bar Chart (ex.1 - Luka Doncic)
+
+# pull and manipulate the data
+```{r}
+# call the player's stats table and perform several actions
+player_shooting <- player_stats %>% 
+  # select the columns for season, 2P%, 3P%, and FT%
+  select(slugSeason, pctFG2, pctFG3, pctFT) %>%
+  # rename these columns for clarity
+  rename("2P%" = "pctFG2", "3P%" = "pctFG3", "FT%" = "pctFT") %>%
+  # pivot table from wide to long (will allow us to wrap/group the bar charts by season)
+  pivot_longer(!slugSeason, values_to = "value") %>%
+  # shorten the names of each season to reduce up clutter on x-axis labels
+  mutate(
+    slugSeason = case_when(
+      slugSeason == "2018-19" ~ "18-19",
+      slugSeason == "2019-20" ~ "19-20",
+      slugSeason == "2020-21" ~ "20-21",
+      slugSeason == "2021-22" ~ "21-22")) 
+
+# convert the shooting numebrs to percentages with one decimal spot
+player_shooting$value <- percent(player_shooting$value, 1)
+```
+
+# ggplot code to create the plot
+```{r}
+# call ggplot and send the chart code into the object labeled "bar_chart"
+bar_chart <- ggplot() +
+  # bar chart function from ggplot
+  geom_bar(player_shooting, mapping = aes(x = slugSeason, y = value, group = name, fill = name), 
+           stat = "identity", position = position_dodge(), color = "white", width = .6) + 
+  # set y-axis limits and start ay-xis at 0
+  scale_y_continuous(limits=c(0, 1), expand = c(0,0), labels = scales::percent_format()) +
+  # manually set the fill values for each group of the bar chart 
+        # ---- there are 3's different groups (2P%, 3P%, FT%), so we need to supply 3 different color values
+        # ---- I manually enter these values absed on what I find on team color codes
+                # ---- https://teamcolorcodes.com/dallas-mavericks-color-codes/
+  scale_fill_manual(values = c("#00538C","#002B5E", "gray10"), aesthetics = "fill") +
+  # wrap the plot by name (type of shot)
+  facet_wrap(~name) +
+  # set different labels for plots
+  labs(title = "Luka Doncic - Career Shooting % Trends",
+       subtitle = "Twitter: @DSamangy || Data: nbastatR\n",
+       x = "Season",
+       y = "Shooting Percentage\n") +
+  # add shooting % text values inside the bars for easier understanding
+  geom_text(player_shooting, mapping = aes(x = slugSeason, y = value, label = value), 
+            position = position_dodge(width = .9), size = 2, family = "Comic Sans MS", color = "white", vjust = 2, face = "bold") +
+  # different theme settings to customize the chart
+  theme(
+        # labels/text
+        plot.title = element_text(hjust = .5, size = 14, family = "Comic Sans MS", face = "bold", color = "white"),
+        plot.subtitle = element_text(hjust = .5, size = 8, family = "Comic Sans MS", color = "gray50"),
+        text = element_text(family = "Comic Sans MS"),
+        legend.position = "none",
+        # plot background and lines
+        plot.background = element_rect(fill="gray15", color = "gray15"),
+        panel.background = element_rect(fill="gray15", color = "gray15"),
+        panel.grid.minor.y = element_blank(),
+        panel.grid.major.y = element_line(colour = "gray20"),
+        panel.grid.major.x = element_blank(),
+        axis.line = element_line(colour = "white"),
+        # axis
+        axis.title.x = element_text(colour = "white", size = 10),
+        axis.title.y = element_text(colour = "white", size = 10),
+        axis.text.x = element_text(colour = "white", size = 8),
+        axis.text.y = element_text(colour = "white", size = 8),
+        plot.margin = margin(.5, .5, .5, .5, "cm"),
+        # facet 
+        strip.background = element_rect(fill="gray20"),
+        strip.text = element_text(hjust = .5, size = 8, family = "Comic Sans MS", face = "bold", color = "white"))
+  
+# plot the bar_chart that we created above
+ggdraw(bar_chart) +
+  # near the upper left corner of the plot area, render the team's logo from their png link on NBA.com's page (will need to find this)
+  draw_image("https://a.espncdn.com/combiner/i?img=/i/teamlogos/nba/500/dal.png", 
+             x = .12, y = .64, height = .15, width = .15) +
+  # near the upper left corner of the plot area, render the player's headshot from their png link on NBA.com's page (will need to find this)
+  draw_image("https://cdn.nba.com/headshots/nba/latest/1040x760/1629029.png", 
+             x = .1, y = .64, height = .15, width = .15) 
+
+# save the lst plot that was created in the environment (this one)
+ggsave("luka_pct_bar_chart.png", height = 5, width = 8, dpi = "retina")
+```
+
+
+
+# ----------- Player Career Shooting Percentages Bar Chart (ex. 2 - Darius Garland)
+
+# pull and manipulate the data
+```{r}
+# use players_career function to pull the player's career per game stats
+player_stats <- nbastatR::players_careers(players = c("Darius Garland"), modes = c("PerGame")) %>% 
+  # fitler for regular season 
+  filter(nameTable == "SeasonTotalsRegularSeason") %>%
+  # pull dataset that is nested in "dataTable" column
+  unnest(dataTable) 
+
+# call the player's stats table and perform several actions
+player_shooting <- player_stats %>% 
+  # select the columns for season, 2P%, 3P%, and FT%
+  select(slugSeason, pctFG2, pctFG3, pctFT) %>%
+  # rename these columns for clarity
+  rename("2P%" = "pctFG2", "3P%" = "pctFG3", "FT%" = "pctFT") %>%
+  # pivot table from wide to long (will allow us to wrap/group the bar charts by season)
+  pivot_longer(!slugSeason, values_to = "value") %>%
+  # shorten the names of each season to reduce up clutter on x-axis labels
+  mutate(
+    slugSeason = case_when(
+      slugSeason == "2019-20" ~ "19-20",
+      slugSeason == "2020-21" ~ "20-21",
+      slugSeason == "2021-22" ~ "21-22")) 
+
+# convert the shooting numebrs to percentages with one decimal spot
+player_shooting$value <- percent(player_shooting$value, 1)
+```
+
+# ggplot code to create the plot
+```{r}
+# call ggplot and send the chart code into the object labeled "bar_chart"
+bar_chart <- ggplot() +
+  # bar chart function from ggplot
+  geom_bar(player_shooting, mapping = aes(x = slugSeason, y = value, group = name, fill = name), 
+           stat = "identity", position = position_dodge(), color = "white", width = .6) + 
+  # set y-axis limits and start ay-xis at 0
+  scale_y_continuous(limits=c(0, 1), expand = c(0,0), labels = scales::percent_format()) +
+  # manually set the fill values for each group of the bar chart 
+        # ---- there are 3's different groups (2P%, 3P%, FT%), so we need to supply 3 different color values
+        # ---- I manually enter these values absed on what I find on team color codes
+                # ---- https://teamcolorcodes.com/dallas-mavericks-color-codes/
+  scale_fill_manual(values = c("#860038","#041E42", "#BC945C")) +
+  # wrap the plot by name (type of shot)
+  facet_wrap(~name) +
+  # set different labels for plots
+  labs(title = "Darius Garland - Career Shooting % Trends",
+       subtitle = "Twitter: @DSamangy || Data: nbastatR\n",
+       x = "Season",
+       y = "Shooting Percentage\n") +
+  # add shooting % text values inside the bars for easier understanding
+  geom_text(player_shooting, mapping = aes(x = slugSeason, y = value, label = value), 
+            position = position_dodge(width = .9), size = 2, family = "Comic Sans MS", color = "white", vjust = 2, face = "bold") +
+  # different theme settings to customize the chart
+  theme(
+        # labels/text
+        plot.title = element_text(hjust = .5, size = 14, family = "Comic Sans MS", face = "bold", color = "white"),
+        plot.subtitle = element_text(hjust = .5, size = 8, family = "Comic Sans MS", color = "gray50"),
+        text = element_text(family = "Comic Sans MS"),
+        legend.position = "none",
+        # plot background and lines
+        plot.background = element_rect(fill="gray15", color = "gray15"),
+        panel.background = element_rect(fill="gray15", color = "gray15"),
+        panel.grid.minor.y = element_blank(),
+        panel.grid.major.y = element_line(colour = "gray20"),
+        panel.grid.major.x = element_blank(),
+        axis.line = element_line(colour = "white"),
+        # axis
+        axis.title.x = element_text(colour = "white", size = 10),
+        axis.title.y = element_text(colour = "white", size = 10),
+        axis.text.x = element_text(colour = "white", size = 8),
+        axis.text.y = element_text(colour = "white", size = 8),
+        plot.margin = margin(.5, .5, .5, .5, "cm"),
+        # facet 
+        strip.background = element_rect(fill="gray20"),
+        strip.text = element_text(hjust = .5, size = 8, family = "Comic Sans MS", face = "bold", color = "white"))
+  
+# plot the bar_chart that we created above
+ggdraw(bar_chart) +
+  # near the upper left corner of the plot area, render the team's logo from their png link on NBA.com's page (will need to find this)
+  draw_image("https://a.espncdn.com/combiner/i?img=/i/teamlogos/nba/500/cle.png", 
+             x = .12, y = .64, height = .15, width = .15) +
+  # near the upper left corner of the plot area, render the player's headshot from their png link on NBA.com's page (will need to find this)
+  draw_image("https://cdn.nba.com/headshots/nba/latest/1040x760/1629636.png", 
+             x = .1, y = .64, height = .15, width = .15) 
+
+# save the lst plot that was created in the environment (this one)
+ggsave("player_2_pct_bar_chart.png", height = 5, width = 8, dpi = "retina")
+```
+
+
+
+
+
