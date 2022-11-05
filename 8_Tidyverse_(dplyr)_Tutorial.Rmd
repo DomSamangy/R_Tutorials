@@ -1,0 +1,290 @@
+---
+title: "Tidyverse_Tutorial"
+output: html_document
+date: "2022-10-19"
+---
+
+# --------------------------------- Install and Load Packages
+```{r}
+#install.packages("tidyverse")
+library(tidyverse)
+
+#install.packages("dplyr")
+library(dplyr)
+
+#install.packages("ggplot2")
+library(ggplot2)
+
+install.packages("nycflights13")
+library(nycflights13)
+```
+
+# Introduction
+```{r}
+# WHAT IS THE TIDYVERSE?
+
+# ---- "The tidyverse is an opinionated collection of R packages designed for data science. All packages share an underlying design philosophy, grammar, and data structures."
+
+# ---- dplyr (data manipulation)
+# ---- ggplot (data visualization)
+# ---- tidyr (tidying data)
+# ---- tibble (modern dataframes)
+# ---- readr (read csv files)
+# ---- purrr (work with functions and vectors)
+# ---- stringr (work with strings)
+# ---- forcats (work with factors)
+
+
+# OUR FOCUS IN THE EXAMPLE IS DPLYR!!!
+
+# DPLYR
+# ---- The ultimate tool for data transformation
+# ---- a grammar of data manipulation, providing a consistent set of verbs that help you solve the most common data manipulation challenges
+```
+
+
+
+# --------------------------------- Data Creation
+# Create Dataframe
+```{r}
+# create two vectors, each containing values of their respective  
+Name <- c("Jon", "Bill", "Maria", "Ben", "Tina")
+Age <- c(23, 41, 32, 58, 26)
+
+# create a dataframe utilizing the dataframe() function that accepts vectors of the same length
+df <- data.frame(Name, Age)
+
+# print the new dataframe
+print(df)
+
+
+# -------------------------------------------------------------
+
+
+# same process as above, but quicker process with vectors being created inside the dataframe() function
+df <- data.frame(
+        Name = c("Jon", "Bill", "Maria", "Ben", "Tina"),
+        Age = c(23, 41, 32, 58, 26)
+      )
+
+print (df)
+```
+
+
+
+# --------------------------------- Data Investigation
+# Load Data
+```{r}
+flights
+
+flights <- flights
+# -------------------------------------------------------------
+
+
+# examine the structure of the local dataframe "flights"
+str(flights)
+
+# examine the summary statistics of each column of the local dataframe "flights"
+summary(flights)
+
+# show the number of columns in the dataframe
+ncol(flights)
+
+# show the number of rows in the dataframe
+nrow(flights)
+
+# -------------------------------------------------------------
+
+# pull first five rows
+head(flights, 5)
+
+# pull last five rows
+tail(flights, 5)
+
+# pull the five rows that are located from rows 11 to 15
+slice(flights, 11:15)
+```
+
+
+# --------------------------------- Data Selection
+# select()
+```{r}
+# select the desired columns, or variables, that you wish to analyze
+flights %>% select(month, day, year, carrier, origin, dest)
+```
+
+# rbind() & cbind()
+```{r}
+flights
+
+# -------------------------------------------------------------
+
+# select, or "slice", the first set of ten rows from the dataframe
+first_10 <- flights %>% slice(1:10)
+# select, or "slice", the second set of  ten rows from the dataframe
+second_10 <- flights %>% slice(11:20)
+
+# combine, or "stack", the two new dataframes that each contain a set of 10 rows.
+rbind(first_10, second_10)
+
+# -------------------------------------------------------------
+
+# select the origin column
+origin <- flights %>% select(origin)
+# select the destination column
+destinations <- flights %>% select(dest)
+
+# combine the two new dataframes that each contain a column of values
+cbind(origin, destinations)
+```
+
+
+
+# --------------------------------- Data Filter
+# filter()
+```{r}
+# filter() by column value
+flights %>%
+  filter(month == 1)
+
+# filter() by column value
+flights %>%
+  filter(month == 6)
+
+# filter() by a greater than condition
+flights %>%
+  filter(air_time > 500)
+
+# filter() by one condition
+flights %>%
+  filter(origin == "JFK")
+
+# filter() by one non-true condition
+flights %>%
+  filter(origin != "JFK")
+
+# filter() by multiple conditions
+flights %>%
+  filter(dest %in% c("ATL", "MIA"))
+```
+
+# ends_with starts_with
+```{r}
+# filter() for columns that begin with matching string pattern
+flights %>%
+  select(starts_with("dep_"))
+
+# filter() for columns that end with matching string pattern
+flights %>%
+  select(ends_with("_time"))
+```
+
+
+
+# --------------------------------- Data Manipulation
+# mutate()
+```{r}
+flights
+
+# ------ mutate
+# calculate a column displaying the delay time upon the departure
+# after, select columns you wish to examine
+flights %>%
+  mutate(depart_delay = sched_dep_time - dep_time) %>%
+  select(month, day, year, carrier, sched_dep_time, dep_time, depart_delay)
+
+# ------ case_when
+# dependent on the carrier column's string, create a new column
+flights1 <- flights %>% 
+  select(carrier) %>%
+  mutate(carrier_full = 
+           case_when(
+             carrier == "UA" ~ "United Airlines",
+             carrier == "AA" ~ "American Airlines",
+             carrier == "DL" ~ "Delta Airlines",
+             carrier == "B6" ~ "JetBlue Airlines",
+             carrier == "EV" ~ "EVA Air",
+             carrier == "US" ~ "US Airways",
+             carrier == "MQ" ~ "Envoy Air"
+             )
+         )
+
+# filter for rows that contain the inputted string pattern in the chosen column
+flights1 %>%
+  filter(str_detect(carrier_full, "United"))
+
+# filter for rows that contain the inputted string pattern in the chosen column
+flights1 %>%
+  filter(str_detect(carrier_full, "Airlines"))
+```
+
+# rename()
+```{r}
+flights
+
+# filter for rows that contain the inputted string pattern in the chosen column
+# new column name comes first in the operator with the old name following
+rename(flights, "depart_time" = dep_time)
+rename(flights, "arrival_time" = sched_arr_time)
+rename(flights, "destination" = dest)
+
+flights1 <- rename(flights, "depart_time" = dep_time)
+```
+
+
+
+# --------------------------------- Data Summaries
+# group_by & summarise
+```{r}
+flights
+
+# group by each carrier initials and calculate the total amount of flights by each 
+flights %>%
+  group_by(carrier) %>%
+  count() %>%
+  arrange(desc(n))
+```
+
+# summarise()
+```{r}
+flights
+
+# -------------------------------------------------------------
+
+# group by each carrier initials and calculate the average arrival delay time for each flight
+flights %>%
+  group_by(carrier) %>%
+  summarise(mean(arr_delay))
+
+# -------------------------------------------------------------
+
+# drop all rows that contain an NA value in the arrival delay column, as it causes the summarise error
+
+flights %>% filter(!is.na(arr_delay))
+
+# group by each carrier initials and calculate the average arrival delay time for each flight
+flights_new %>%
+  group_by(carrier) %>%
+  summarise(mean(arr_delay))
+```
+
+# arrange()
+```{r}
+# after calculating the average arrival delay time, arrange in descending order 
+# this will show which carriers have the longest average arrival delays
+
+flights_new %>%
+  group_by(carrier) %>%
+  summarise(avg_arr_delay = mean(arr_delay)) %>%
+  arrange(desc(avg_arr_delay))
+
+# after calculating the average arrival delay time, arrange in ascending order 
+# this will show which carriers have the shortest average arrival delays, or even arrive ahead of schedule
+
+flights_new %>%
+  group_by(carrier) %>%
+  summarise(avg_arr_delay = mean(arr_delay)) %>%
+  arrange(-desc(avg_arr_delay))
+```
+
+
